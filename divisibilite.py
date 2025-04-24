@@ -1,4 +1,4 @@
-from random import sample, shuffle
+from random import sample, shuffle, randint
 
 
 class Number:
@@ -76,20 +76,30 @@ set_primes = [
     n for n in (Number(i, exercise_divs) for i in range(max_value)) if n.n_of_divs == 0
 ]
 
+# Vérifications et ajustements
+message = "Demande incohérente, quantités ajustées :"
 
-# Si trop de premiers demandés, donne le max possible
+# 1. Trop de nombres premiers demandés
 if n_of_primes > len(set_primes):
-    print(f"Trop de nombres premiers demandés, maximum donné : {len(set_primes)}")
+    print(f"{message} {len(set_primes)} nombres premiers disponibles.")
     n_of_primes = len(set_primes)
 
 
+# 2. Trop de premiers pour la quantité totale
+if n_of_primes > exercise_len:
+    print(message)
+    n_of_primes = randint(1, exercise_len)
+
+# 3. Trop de non premiers
+if exercise_len - n_of_primes > len(data):
+    print(message)
+    n_of_primes = exercise_len - len(data)
+
+
 # Génération de la liste selon la quantité de premiers demandée
-if set_primes:
-    exercise_set = sample(set_primes, n_of_primes) + sample(
-        data, exercise_len - n_of_primes
-    )
-else:
-    exercise_set = sample(data, exercise_len)
+exercise_set = sample(set_primes, n_of_primes) + sample(
+    data, exercise_len - n_of_primes
+)
 
 # Mélange la liste
 shuffle(exercise_set)
