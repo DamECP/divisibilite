@@ -59,51 +59,65 @@ def user_primes():
             print("Entrée non valide")
 
 
-# Paramètres user
-max_value = user_max_value()
-exercise_divs = user_divisors()
-exercise_len = len_of_exercise()
-n_of_primes = user_primes()
+def main():
+    # Paramètres user
+    max_value = user_max_value()
+    exercise_divs = user_divisors()
+    exercise_len = len_of_exercise()
+    n_of_primes = user_primes()
+
+    # Liste avec tous les nombres possibles selon le nombre de diviseurs min attendu
+    data = [
+        n
+        for n in (Number(i, exercise_divs) for i in range(max_value))
+        if n.n_of_divs >= 1
+    ]
+
+    # Liste des nombres premiers dans le range attendu
+    set_primes = [
+        n
+        for n in (Number(i, exercise_divs) for i in range(max_value))
+        if n.n_of_divs == 0
+    ]
+
+    # Vérifications et ajustements
+    message = "Demande incohérente, quantités ajustées"
+
+    # 1. Trop de nombres premiers demandés
+    if n_of_primes > len(set_primes):
+        print(f"{message} : {len(set_primes)} nombres premiers disponibles.")
+        n_of_primes = len(set_primes)
+
+    # 2. Trop de premiers pour la quantité totale
+    if n_of_primes > exercise_len:
+        print(message)
+        n_of_primes = randint(1, exercise_len)
+
+    # 3. Trop de non premiers
+    if exercise_len - n_of_primes > len(data):
+        n_of_primes = exercise_len - len(data)
+        print(f"{message} : {n_of_primes} nombres premiers ajoutés")
+
+    # Génération de la liste selon la quantité de premiers demandée
+    exercise_set = sample(set_primes, n_of_primes) + sample(
+        data, exercise_len - n_of_primes
+    )
+
+    # Mélange la liste
+    shuffle(exercise_set)
+
+    # Affichage
+    for i in exercise_set:
+        print(f"{i.value} : {i.divs}")
 
 
-# Liste avec tous les nombres possibles selon le nombre de diviseurs min attendu
-data = [
-    n for n in (Number(i, exercise_divs) for i in range(max_value)) if n.n_of_divs >= 1
-]
+def run_program():
+    while True:
+        main()
 
-# Liste des nombres premiers dans le range attendu
-set_primes = [
-    n for n in (Number(i, exercise_divs) for i in range(max_value)) if n.n_of_divs == 0
-]
-
-# Vérifications et ajustements
-message = "Demande incohérente, quantités ajustées :"
-
-# 1. Trop de nombres premiers demandés
-if n_of_primes > len(set_primes):
-    print(f"{message} {len(set_primes)} nombres premiers disponibles.")
-    n_of_primes = len(set_primes)
+        user_input = input("1 pour recommencer, 0 pour quitter : ")
+        if user_input != "1":
+            break
 
 
-# 2. Trop de premiers pour la quantité totale
-if n_of_primes > exercise_len:
-    print(message)
-    n_of_primes = randint(1, exercise_len)
-
-# 3. Trop de non premiers
-if exercise_len - n_of_primes > len(data):
-    print(message)
-    n_of_primes = exercise_len - len(data)
-
-
-# Génération de la liste selon la quantité de premiers demandée
-exercise_set = sample(set_primes, n_of_primes) + sample(
-    data, exercise_len - n_of_primes
-)
-
-# Mélange la liste
-shuffle(exercise_set)
-
-# Affichage
-for i in exercise_set:
-    print(f"{i.value} : {i.divs}")
+run_program()
