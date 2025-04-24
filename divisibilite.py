@@ -1,55 +1,99 @@
-from random import sample
-
-# option possible : choisir si réponse nulle ou non
-
-max_value = None
-divs = None
-exercise_set = None
-
-while True:
-    if max_value == None:
-        try:
-            max_value = int(input("Entrer la valeur max : "))
-        except ValueError:
-            print("Entrer un nombre valide")
-        continue
-    if divs == None:
-        try:
-            user_divs = input(
-                "Entrer les diviseurs sélectionnés séparés par une virgule (ex : 3, 5) : "
-            )
-            divs = set([int(i.strip()) for i in user_divs.split(",")])
-        except ValueError:
-            print("Entrer des nombres entiers valides")
-        continue
-    if exercise_set == None:
-        try:
-            exercise_set = int(input("Quantité de nombres : "))
-            if exercise_set > max_value:
-                raise ValueError
-        except ValueError:
-            print("Entrer un nombre valable")
-            continue
-    break
+from random import sample, shuffle
 
 
 class Number:
-    def __init__(self, value: int):
+    def __init__(self, value: int, divisors: set):
         self.value = value
-        self.div = self.div()
+        self.divisors = self.get_divisors(divisors)
+        self.n_of_divs = len(self.divisors)
 
-    def div(self):
+    def get_divisors(self, divisors: set):
         self.divs = [
             i
-            for i in range(2, (self.value // 2) + 1)
-            if self.value % i == 0 and i in divs
+            for i in divisors
+            if self.value % i == 0
+            # Calcul des diviseurs de 'self.value' parmi
+            # ceux fournis par l'utilisateur, 1 est exclu
         ]
         return self.divs
 
 
-data = [Number(i) for i in range(max_value) if len(Number(i).div) >= 1]
+def user_max_value():
+    while True:
+        try:
+            value = int(input("Entrer la valeur max : "))
+            return value
+        except ValueError:
+            print("Entrer un nombre valide")
 
-for i in range(exercise_set):
 
-    example = sample(data, 1)[0]
-    print(example.value, example.div)
+def user_divisors():
+    while True:
+        try:
+            user_divisors = input(
+                "Entrer les diviseurs sélectionnés séparés par une virgule (ex : 3, 5) : "
+            )
+            divisors = set([int(i.strip()) for i in user_divisors.split(",")])
+            return divisors
+        except ValueError:
+            print("Entrer des nombres entiers valides")
+
+
+def len_of_exercise():
+    while True:
+        try:
+            examples = int(input("Quantité : "))
+            return examples
+        except ValueError:
+            print("Entrer un nombre valable")
+
+
+def user_primes():
+    while True:
+        try:
+            primes = int(input('Nombre de réponses "vides" (nombres premiers) : '))
+            if primes < 0:
+                raise ValueError
+            return primes
+        except ValueError:
+            print("Entrée non valide")
+
+
+# Paramètres user
+max_value = user_max_value()
+exercise_divs = user_divisors()
+exercise_len = len_of_exercise()
+n_of_primes = user_primes()
+
+
+# Liste avec tous les nombres possibles selon le nombre de diviseurs min attendu
+data = [
+    n for n in (Number(i, exercise_divs) for i in range(max_value)) if n.n_of_divs >= 1
+]
+
+# Liste des nombres premiers dans le range attendu
+set_primes = [
+    n for n in (Number(i, exercise_divs) for i in range(max_value)) if n.n_of_divs == 0
+]
+
+
+# Si trop de premiers demandés, donne le max possible
+if n_of_primes > len(set_primes):
+    print(f"Trop de nombres premiers demandés, maximum donné : {len(set_primes)}")
+    n_of_primes = len(set_primes)
+
+
+# Génération de la liste selon la quantité de premiers demandée
+if set_primes:
+    exercise_set = sample(set_primes, n_of_primes) + sample(
+        data, exercise_len - n_of_primes
+    )
+else:
+    exercise_set = sample(data, exercise_len)
+
+# Mélange la liste
+shuffle(exercise_set)
+
+# Affichage
+for i in exercise_set:
+    print(f"{i.value} : {i.divs}")
