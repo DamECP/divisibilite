@@ -69,7 +69,9 @@ def main():
     # Liste avec tous les nombres possibles selon le nombre de diviseurs min attendu
     data = [
         n
-        for n in (Number(i, exercise_divs) for i in range(max_value))
+        for n in (
+            Number(i, exercise_divs) for i in range(10, max_value)
+        )  # Commence à 10
         if n.n_of_divs >= 1
     ]
 
